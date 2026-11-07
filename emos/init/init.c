@@ -3176,7 +3176,7 @@ int main(int argc, char **argv)
     note("stage=applets status=%d vi=%d\n", lst, access("/sbin/vi", X_OK));
     led_step();                                  /* 7: busybox applets */
 
-    /* Device mode: cmode 2 is charging-only, cmode 1 is device. */
+    /* Device mode: cmode 1 is device, cmode 2 takes the host path. */
     r = wr("/sys/devices/platform/mt_usb/cmode", "1");
     note("mt_usb cmode=1 rc=%d\n", r);
 

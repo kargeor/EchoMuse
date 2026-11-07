@@ -1625,6 +1625,29 @@ reads `MT8163` on every board using that SoC and cannot discriminate between
 them, while `device_type_id` (`A3S5BH2HU6VAYF` on a Dot 2) can. The calibration
 values have never been read by anything here.
 
+- 2026-11-05: read off a Dot 2 on emOS over FireOS 6 (no `p17`/`p18`), read
+  only. **`mmcblk0boot1` holds the idme record** (magic `beefdeed`, version
+  `2.1`): the same fields as `/proc/idme` plus `mac_addr`, `bt_mac_addr`,
+  `mac_sec`, `bt_mfg`, `wifi_mfg` and `PSN`, so a dump of it is per-unit data
+  and is never published. **`mmcblk0boot0` holds two copies of the preloader**,
+  each behind an `EMMC_BOOT` + `BRLYT` header pair: at 0 pointing to
+  `0x1000`-`0x23800`, at `0x800` pointing to `0x41000`-`0x63800`, 141,312 bytes
+  each. emOS's `mknodes()` left no `/dev/block/mmcblk0boot*` node, though
+  `lsblk` lists both (179:32, 179:64); `mknod` in `/tmp` reads them.
+
+## USB host mode
+
+- 2026-11-05: on a Dot 2 on emOS over FireOS 6, writing `2` to
+  `/sys/devices/platform/mt_usb/cmode` runs the HOST path: the kernel warned
+  from `enable_irq` under `switch_int_to_host` under `mt_usb_store_cmode`, and
+  the value read back 2. That replaced the earlier note that `2` is
+  charging-only. No USB device has been tried, and `2` also explains the
+  gadget reporting `DISCONNECTED`.
+  `CONFIG_USB_MTK_OTG=y`; `CONFIG_USB_OTG` is not set. The boot log finds no
+  `drvvbus` or `otg5ven` pinctrl and the device tree has no `iddig` or
+  `drvvbus` node, so nothing here can source VBUS or detect the ID pin:
+  host mode would need 5V from outside and a software mode switch.
+
 ## The emOS console password
 
 `consolePassword` arrives on the config push and the firmware does exactly one

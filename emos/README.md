@@ -143,9 +143,12 @@ every one of them is a comment in the source rather than folklore:
    other devices: its `ttyGS0` is 246:0 and 247:0 is the jack detector, so the
    console sat silent (2026-10-24). `devcheck.c` pins the parser.
 3. **MUSB must be put in device mode** — write `1` to
-   `/sys/devices/platform/mt_usb/cmode`. `cmode 2` is charging-only, and the
-   gadget above it reports `DISCONNECTED` forever no matter how correctly it is
-   configured.
+   `/sys/devices/platform/mt_usb/cmode`. Under `cmode 2` the gadget above it
+   reports `DISCONNECTED` forever no matter how correctly it is configured:
+   `2` is the host path, not charging-only (`mt_usb_store_cmode` calls
+   `switch_int_to_host`, seen on FireOS 6's kernel, 2026-11-05). No USB device
+   has been tried in that mode, and the device tree defines no way to source
+   VBUS or read the ID pin (`docs/history/device.md`, "USB host mode").
 4. **`f_acm`, not adbd.** adbd needs functionfs descriptors and Android's
    property service. `f_acm` needs no daemon: the kernel exposes `/dev/ttyGS0`
    and init puts a shell on it.
